@@ -5,7 +5,7 @@ import { Poppins } from 'next/font/google'
 const poppins = Poppins({ subsets: ['latin'], weight: ['500', '600', '700', '900'] })
 
 export const metadata: Metadata = {
-	title: 'Nuba Nvoicex',
+	title: 'Nuba Nvoicex - API',
 	description: 'Payments API',
 }
 
