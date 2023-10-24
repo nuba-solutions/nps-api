@@ -10,19 +10,11 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-# - task: swellaby.mirror-git-repository.mirror-git-repository-vsts-task.mirror-git-repository-vsts-task@1
-#   displayName: 'Mirror Git Repository'
-#   inputs:
-#     sourceGitRepositoryUri: '$(Build.Repository.Uri)'
-#     #sourceGitRepositoryUri: 'https://nubasolutions.visualstudio.com/NubaPaymentSystem/_git/nps-api'
-#     sourceVerifySSLCertificate: false
-#     destinationGitRepositoryUri: 'https://github.com/nuba-solutions/nps-api.git'
-#     destinationGitRepositoryPersonalAccessToken: '$(githubPAT)'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-
+- task: swellaby.mirror-git-repository.mirror-git-repository-vsts-task.mirror-git-repository-vsts-task@1
+  displayName: 'Mirror Git Repository'
+  inputs:
+    sourceGitRepositoryUri: '$(Build.Repository.Uri)'
+    #sourceGitRepositoryUri: 'https://nubasolutions.visualstudio.com/NubaPaymentSystem/_git/nps-api'
+    sourceVerifySSLCertificate: false
+    destinationGitRepositoryUri: 'https://github.com/nuba-solutions/nps-api.git'
+    destinationGitRepositoryPersonalAccessToken: '$(githubPAT)'
