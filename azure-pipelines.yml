@@ -10,11 +10,10 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: swellaby.mirror-git-repository.mirror-git-repository-vsts-task.mirror-git-repository-vsts-task@1
-  displayName: 'Mirror Git Repository'
+- task: mirror-git-repository-vsts-task@1
   inputs:
     sourceGitRepositoryUri: '$(Build.Repository.Uri)'
-    #sourceGitRepositoryUri: 'https://nubasolutions.visualstudio.com/NubaPaymentSystem/_git/nps-api'
+    sourceGitRepositoryPersonalAccessToken: '$(azurePAT)'
     sourceVerifySSLCertificate: false
     destinationGitRepositoryUri: 'https://github.com/nuba-solutions/nps-api.git'
     destinationGitRepositoryPersonalAccessToken: '$(githubPAT)'
