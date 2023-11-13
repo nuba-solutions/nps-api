@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
 import { encryptPassword } from '@/lib/encryption'
 import { verifyJwt } from '@/lib/jwt'
+import axios from 'axios'
+import Stripe from 'stripe'
+import { createStripeCustomer } from '@/lib/stripe_helpers'
 
 export async function GET(request: Request) {
 	const accessToken = request.headers.get("Authorization")
@@ -10,10 +13,13 @@ export async function GET(request: Request) {
 	try {
         const response = await prisma.user.findMany({
             include: {
-                charges: true
+                charges: true,
+				userPreferences: true
             }
         })
-        const users: User[] = response
+        const users: User[] = response.map((user) => {
+			return {...user, password: ''}
+		})
 
         return NextResponse.json(users)
     } catch (error: any) {
@@ -45,21 +51,25 @@ export async function POST(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { name, email, password }: Partial<User> = await request.json()
+	const { name, email, password, role }: Partial<User> = await request.json()
 	if (!name || !email || !password) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
-	let encryptedPass = await encryptPassword(password)
-
 	try {
+		// TODO: Add stripe_id as field for each customer || We may use a single customer id as Nuba and handle it ourselves
+		const stripeCustomer = await createStripeCustomer(email)
+
+		let encryptedPass = await encryptPassword(password)
 		const createdUser: User = await prisma.user.create({
 			data: {
 				name: name,
                 email: email,
-                password: encryptedPass
+                password: encryptedPass,
+				role: role,
+				userPreferences: {}
 			}
 		})
 
-		return NextResponse.json(createdUser)
+		return NextResponse.json({...createdUser, password: null})
 	} catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }

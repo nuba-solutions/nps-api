@@ -2,12 +2,11 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
 import { verifyJwt } from '@/lib/jwt'
 
-export async function GET(request: Request) {
+export async function GET(request: Request, { params : { id }}: RequestProps) {
     const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
     try {
-        const id = request.url.slice(request.url.lastIndexOf("/") + 1)
         const userId = parseInt(id)
 
         const response = await prisma.user.findUnique({
@@ -15,7 +14,8 @@ export async function GET(request: Request) {
                 id: userId
             },
             include: {
-                charges: true
+                charges: true,
+                userPreferences: true
             }
         })
 
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
         const user: User = response
 
-        return NextResponse.json(user)
+        return NextResponse.json({...user, password: null})
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }

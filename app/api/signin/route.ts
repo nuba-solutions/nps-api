@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
     try {
         const { email, password }: TSignInSchema = result.data
         const user = await prisma.user.findFirst({
-            where: { email: email }
+            where: { email: email },
+            include: {
+                userPreferences: true
+            }
         })
 
         if (!user || !await comparePassword(password, user.password)) return NextResponse.json({ success: false, statusMessage: 'Unauthorized user' }, { status: 401 })

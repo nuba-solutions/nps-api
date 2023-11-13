@@ -13,6 +13,20 @@ type User = {
     name: string
     email: string
     password: string
+    role: UserRole
     createdAt: Date
     charges?: Charge[]
+}
+
+type UserPreferences = {
+    id: number
+    userId: User.id,
+    theme?: string | null
+    notificationsEnabled: boolean
+}
+
+enum Role {
+    MASTER,
+    ADMIN,
+    USER
 }
