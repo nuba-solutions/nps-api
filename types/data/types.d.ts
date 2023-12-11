@@ -1,4 +1,4 @@
-type Charge = {
+type TCharge = {
     id: number
     title: string
     description: string
@@ -8,24 +8,26 @@ type Charge = {
     userId: User.id
 }
 
-type User = {
+type TUser = {
     id: number
     name: string
     email: string
     password: string
+    theme?: string | null
+    notificationsEnabled: boolean
     role: UserRole
     createdAt: Date
     charges?: Charge[]
 }
 
-type UserPreferences = {
+type TUserPreferences = {
     id: number
     userId: User.id,
     theme?: string | null
     notificationsEnabled: boolean
 }
 
-enum Role {
+enum TRole {
     MASTER,
     ADMIN,
     USER

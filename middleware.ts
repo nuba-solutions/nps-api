@@ -20,5 +20,5 @@ export async function middleware(request: Request) {
  }
 
  export const config = {
-    matcher: '/api/preferences/:path*',
+    matcher: '/api/users/:path*',
  }

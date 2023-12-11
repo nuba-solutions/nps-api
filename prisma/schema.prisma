@@ -22,23 +22,24 @@ model Charge {
 }
 
 model User {
-    id              Int               @id @unique @default(autoincrement())
-    name            String
-    email           String            @unique
-    password        String
-    role            Role              @default(USER)
-    charges         Charge[]
-    createdAt       DateTime          @default(now())
-    updatedAt       DateTime          @updatedAt
-    userPreferences UserPreferences[]
+    id                   Int              @id @unique @default(autoincrement())
+    name                 String
+    email                String           @unique
+    password             String
+    role                 Role             @default(USER)
+    charges              Charge[]
+    createdAt            DateTime         @default(now())
+    updatedAt            DateTime         @updatedAt
+    theme                String?
+    notificationsEnabled Boolean          @default(true)
+    clientProviders      ClientProvider[]
 }
 
-model UserPreferences {
-    id                   Int     @id @unique @default(autoincrement())
-    user                 User?   @relation(fields: [userId], references: [id])
-    userId               Int?
-    theme                String?
-    notificationsEnabled Boolean
+model ClientProvider {
+    id     Int    @id @unique @default(autoincrement())
+    name   String
+    User   User?  @relation(fields: [userId], references: [id])
+    userId Int?
 }
 
 enum Role {

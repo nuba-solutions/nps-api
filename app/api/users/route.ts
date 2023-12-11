@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 				userPreferences: true
             }
         })
-        const users: User[] = response.map((user) => {
+        const users: TUser[] = response.map((user) => {
 			return {...user, password: ''}
 		})
 
@@ -31,7 +31,7 @@ export async function DELETE(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { id }: Partial<User> = await request.json()
+	const { id }: Partial<TUser> = await request.json()
 	if (!id) return NextResponse.json({ error: 'User ID is required!' }, { status: 400 })
 
 	try {
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { name, email, password, role }: Partial<User> = await request.json()
+	const { name, email, password, role }: Partial<TUser> = await request.json()
 	if (!name || !email || !password) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
 		const stripeCustomer = await createStripeCustomer(email)
 
 		let encryptedPass = await encryptPassword(password)
-		const createdUser: User = await prisma.user.create({
+		const createdUser: TUser = await prisma.user.create({
 			data: {
 				name: name,
                 email: email,
@@ -79,13 +79,11 @@ export async function PUT(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { id, name, email, password }: Partial<User> = await request.json()
-	if (!id || !name || !email || !password) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
-
-	let encryptedPass = await encryptPassword(password)
+	const { id, name, email, notificationsEnabled, theme }: TUser = await request.json()
+	if (!id || !name || !email || !notificationsEnabled || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
-		const updatedUser: User = await prisma.user.update({
+		const updatedUser: TUser = await prisma.user.update({
             where: {
                 id: id
             },
@@ -93,7 +91,8 @@ export async function PUT(request: Request) {
                 id: id,
 				name: name,
                 email: email,
-                password: encryptedPass
+				notificationsEnabled: notificationsEnabled,
+				theme: theme
 			}
 		})
 
