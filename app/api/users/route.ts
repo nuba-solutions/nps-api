@@ -14,7 +14,6 @@ export async function GET(request: Request) {
         const response = await prisma.user.findMany({
             include: {
                 charges: true,
-				userPreferences: true
             }
         })
         const users: TUser[] = response.map((user) => {
@@ -51,8 +50,8 @@ export async function POST(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { name, email, password, role }: Partial<TUser> = await request.json()
-	if (!name || !email || !password) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
+	const { name, email, password, role, theme, notificationsEnabled }: Partial<TUser> = await request.json()
+	if (!name || !email || !password || !theme || !notificationsEnabled) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
 		// TODO: Add stripe_id as field for each customer || We may use a single customer id as Nuba and handle it ourselves
@@ -65,7 +64,8 @@ export async function POST(request: Request) {
                 email: email,
                 password: encryptedPass,
 				role: role,
-				userPreferences: {}
+				notificationsEnabled: notificationsEnabled,
+				theme: theme
 			}
 		})
 

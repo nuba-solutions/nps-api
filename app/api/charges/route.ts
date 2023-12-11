@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 				user: true
 			}
 		})
-		const charges: Charge[] = response
+		const charges: TCharge[] = response
 
 		return NextResponse.json(charges)
     } catch (error: any) {
@@ -24,7 +24,7 @@ export async function DELETE(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
-	const { id }: Partial<Charge> = await request.json()
+	const { id }: Partial<TCharge> = await request.json()
 	if (!id) return NextResponse.json({ error : "Charge ID is required!"}, { status: 400 })
 
 	try {
@@ -44,11 +44,11 @@ export async function POST(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
-	const { title, description, totalAmount, userId }: Partial<Charge> = await request.json()
+	const { title, description, totalAmount, userId }: Partial<TCharge> = await request.json()
 	if (!title || !description || !totalAmount || !userId) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
-		const createdCharge: Charge = await prisma.charge.create({
+		const createdCharge: TCharge = await prisma.charge.create({
 			data: {
 				title: title,
 				description: description,
@@ -67,11 +67,11 @@ export async function PUT(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
-	const { id, title, description, totalAmount, userId }: Charge = await request.json()
+	const { id, title, description, totalAmount, userId }: TCharge = await request.json()
 	if (!id || !title || !description || !totalAmount || !userId) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
-		const updatedCharge: Charge = await prisma.charge.update({
+		const updatedCharge: TCharge = await prisma.charge.update({
 			where: {
 				id: id
 			},

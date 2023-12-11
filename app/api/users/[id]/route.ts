@@ -14,14 +14,13 @@ export async function GET(request: Request, { params : { id }}: RequestProps) {
                 id: userId
             },
             include: {
-                charges: true,
-                userPreferences: true
+                charges: true
             }
         })
 
         if (!response) return NextResponse.json({ error : 'User not found!' }, { status: 404 })
 
-        const user: User = response
+        const user: TUser = response
 
         return NextResponse.json({...user, password: null})
     } catch (error: any) {

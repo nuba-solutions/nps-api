@@ -20,7 +20,7 @@ export async function GET(request: Request, { params : { id }}: RequestProps) {
 
         if (!response) return NextResponse.json({ error : "Charge Not Found!"}, { status: 404 })
 
-        const charge: Charge = response
+        const charge: TCharge = response
 
         return NextResponse.json(charge)
     } catch (error: any) {
