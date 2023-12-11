@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const allowedOrigins = ['https://localhost:3000', 'http://localhost:3000']
+const allowedOrigins = ['https://localhost:3000', 'http://localhost:3000', 'https://nvoicex-client-portal.vercel.app']
 
 export async function middleware(request: Request) {
 	const origin = request.headers.get('origin')
