@@ -56,8 +56,6 @@ export const authOptions: NextAuthOptions = {
 			name: 'next-auth.session-token',
 			options: {
 				httpOnly: true,
-				sameSite: 'lax',
-				path: '/',
 				secure: true
 			}
 		},
@@ -65,8 +63,6 @@ export const authOptions: NextAuthOptions = {
 			name: 'next-auth.callback-url',
 			options: {
 				httpOnly: true,
-				sameSite: 'lax',
-				path: '/',
 				secure: true
 			}
 		},
@@ -74,8 +70,6 @@ export const authOptions: NextAuthOptions = {
 			name: 'next-auth.csrf-token',
 			options: {
 				httpOnly: true,
-				sameSite: 'lax',
-				path: '/',
 				secure: true
 			}
 		},
