@@ -80,7 +80,7 @@ export async function PUT(request: Request) {
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
 	const { id, name, email, notificationsEnabled, theme }: TUser = await request.json()
-	if (!id || !name || !email || !notificationsEnabled || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
+	if (!id || !name || !email || notificationsEnabled === null || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
 		const updatedUser: TUser = await prisma.user.update({
