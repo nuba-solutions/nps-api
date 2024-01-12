@@ -83,6 +83,7 @@ export async function PUT(request: Request) {
 	if (!id || !name || !email || notificationsEnabled === null || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
+		// TODO: Add check for existing emails
 		const updatedUser: TUser = await prisma.user.update({
             where: {
                 id: id

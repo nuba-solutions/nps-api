@@ -14,7 +14,8 @@ export async function GET(request: Request, { params : { id }}: RequestProps) {
                 id: userId
             },
             include: {
-                charges: true
+                charges: true,
+                notifications: true
             }
         })
 

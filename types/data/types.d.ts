@@ -18,6 +18,7 @@ type TUser = {
     role: UserRole
     createdAt: Date
     charges?: Charge[]
+    notifications?: TNotification[]
 }
 
 type TUserPreferences = {
@@ -31,4 +32,13 @@ enum TRole {
     MASTER,
     ADMIN,
     USER
+}
+
+type TNotification = {
+    id: string | number
+    title: string
+    description: string
+    createdAt: Date
+    userId: User.id
+    createdAt?: Date
 }
