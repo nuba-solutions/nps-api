@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 			data: {
 				title: title,
 				description: description,
-				userId: parseInt(userId)
+				userId: userId
 			}
 		})
 

@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
             zodErrors = { ...zodErrors, [issue.path[0]]: issue.message}
         })
 
+        console.log(zodErrors)
         return NextResponse.json({ success: false, errorsList: zodErrors }, { status: 401 })
     }
 
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
             where: { email: email }
         })
 
-        if (!user || !await comparePassword(password, user.password)) return NextResponse.json({ success: false, statusMessage: 'Unauthorized user' }, { status: 401 })
+        if (!user || !user.password || !await comparePassword(password, user.password)) return NextResponse.json({ success: false, statusMessage: 'Unauthorized user' }, { status: 401 })
 
         const accessToken = signJwtAccessToken(user)
 

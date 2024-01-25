@@ -5,6 +5,7 @@ import { verifyJwt } from '@/lib/jwt'
 import axios from 'axios'
 import Stripe from 'stripe'
 import { createStripeCustomer } from '@/lib/stripe_helpers'
+import { User } from '@prisma/client'
 
 export async function GET(request: Request) {
 	const accessToken = request.headers.get("Authorization")
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
                 charges: true,
             }
         })
-        const users: TUser[] = response.map((user) => {
+        const users: User[] = response.map((user) => {
 			return {...user, password: ''}
 		})
 
@@ -30,7 +31,7 @@ export async function DELETE(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { id }: Partial<TUser> = await request.json()
+	const { id }: Partial<User> = await request.json()
 	if (!id) return NextResponse.json({ error: 'User ID is required!' }, { status: 400 })
 
 	try {
@@ -50,15 +51,21 @@ export async function POST(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { name, email, password, role, theme, notificationsEnabled }: Partial<TUser> = await request.json()
-	if (!name || !email || !password || !theme || !notificationsEnabled) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
+	const { name, email, password, role, theme, notificationsEnabled }: Partial<User> = await request.json()
+	if (!name || !email || !password || !theme || notificationsEnabled === null) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
+
+	const user = await prisma.user.findFirst({
+		where: { email: email }
+	})
+
+	if (user) return NextResponse.json({ error: "User email already exists." }, { status: 400 })
 
 	try {
 		// TODO: Add stripe_id as field for each customer || We may use a single customer id as Nuba and handle it ourselves
 		const stripeCustomer = await createStripeCustomer(email)
 
 		let encryptedPass = await encryptPassword(password)
-		const createdUser: TUser = await prisma.user.create({
+		const createdUser: User = await prisma.user.create({
 			data: {
 				name: name,
                 email: email,
@@ -79,12 +86,18 @@ export async function PUT(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { id, name, email, notificationsEnabled, theme }: TUser = await request.json()
+	const { id, name, email, notificationsEnabled, theme }: User = await request.json()
 	if (!id || !name || !email || notificationsEnabled === null || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
+
+	const user = await prisma.user.findFirst({
+		where: { email: email }
+	})
+
+	if (user) return NextResponse.json({ error: "User email already exists." }, { status: 400 })
 
 	try {
 		// TODO: Add check for existing emails
-		const updatedUser: TUser = await prisma.user.update({
+		const updatedUser: User = await prisma.user.update({
             where: {
                 id: id
             },
