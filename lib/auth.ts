@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
 					}),
 				})
 
-				if (res.status === 401) return null;
+				if (!res || res.status !== 200) return null;
 				const user = await res.json();
 
 				if (!user) return null;
@@ -33,6 +33,7 @@ export const authOptions: NextAuthOptions = {
 					id: `${user.id}`,
 					name: user.name,
 					email: user.email,
+					stripeId: user.stripeId,
 					notificationsEnabled: user.notificationsEnabled,
 					theme: user.theme
 				}

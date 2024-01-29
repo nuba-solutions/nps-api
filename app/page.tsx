@@ -26,10 +26,10 @@ export default function Home() {
 			<Image
 				src="/icon.svg"
 				alt="Nvoicex Icon"
-				width={900}
+				width={500}
 				height={137}
 				priority
-				className='absolute -bottom-40 -right-28 z-0'
+				className='absolute -bottom-40 -right-28 z-0 2xl:w-[700px] 2xl:h-auto'
 			/>
 			<div className='flex flex-col absolute bottom-10 left-10'>
 				<div className='flex items-center gap-2'>

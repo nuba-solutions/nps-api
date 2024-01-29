@@ -2,9 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
 import { encryptPassword } from '@/lib/encryption'
 import { verifyJwt } from '@/lib/jwt'
-import axios from 'axios'
-import Stripe from 'stripe'
-import { createStripeCustomer } from '@/lib/stripe_helpers'
+import { createStripeCustomer, updateStripeCustomer } from '@/lib/stripe_helpers'
 
 export async function GET(request: Request) {
 	const accessToken = request.headers.get("Authorization")
@@ -54,14 +52,17 @@ export async function POST(request: Request) {
 	if (!name || !email || !password || !theme || !notificationsEnabled) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
-		// TODO: Add stripe_id as field for each customer || We may use a single customer id as Nuba and handle it ourselves
-		const stripeCustomer = await createStripeCustomer(email)
+		const stripeCustomer = await createStripeCustomer({
+			email,
+			name
+		})
 
 		let encryptedPass = await encryptPassword(password)
 		const createdUser: TUser = await prisma.user.create({
 			data: {
 				name: name,
                 email: email,
+				stripeId: stripeCustomer,
                 password: encryptedPass,
 				role: role,
 				notificationsEnabled: notificationsEnabled,
@@ -79,11 +80,17 @@ export async function PUT(request: Request) {
 	const accessToken = request.headers.get("Authorization")
 	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
 
-	const { id, name, email, notificationsEnabled, theme }: TUser = await request.json()
-	if (!id || !name || !email || notificationsEnabled === null || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
+	const { id, name, email, notificationsEnabled, theme, stripeId }: TUser = await request.json()
+	if (!id || !name || !email || !stripeId || notificationsEnabled === null || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
 		// TODO: Add check for existing emails
+		const stripeCustomer = await updateStripeCustomer({
+			email,
+			name,
+			stripeId
+		})
+
 		const updatedUser: TUser = await prisma.user.update({
             where: {
                 id: id
@@ -92,6 +99,7 @@ export async function PUT(request: Request) {
                 id: id,
 				name: name,
                 email: email,
+				stripeId: stripeCustomer,
 				notificationsEnabled: notificationsEnabled,
 				theme: theme
 			}
