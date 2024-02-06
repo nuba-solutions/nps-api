@@ -1,4 +1,5 @@
 import { NextAuthOptions } from "next-auth"
+import EmailProvider from 'next-auth/providers/email'
 import KeycloakProvider from 'next-auth/providers/keycloak'
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
@@ -15,7 +16,6 @@ const CustomPrismaAdapter: Adapter = {
     return prismaAdapter.linkAccount?.(account);
   },
 };
-
 
 export const authOptions: NextAuthOptions = {
     adapter: CustomPrismaAdapter,
@@ -36,6 +36,18 @@ export const authOptions: NextAuthOptions = {
 			httpOptions: {
 				timeout: 30000
 			}
+		}),
+		EmailProvider({
+			from: process.env.EMAIL_FROM,
+			maxAge: 30 * 60,
+			server: {
+				host: process.env.EMAIL_SERVER_HOST,
+				port: process.env.EMAIL_SERVER_PORT,
+				auth: {
+					user: process.env.EMAIL_SERVER_USER,
+					pass: process.env.EMAIL_SERVER_PASSWORD
+				}
+			},
 		}),
         CredentialsProvider({
 			id: 'credentials',
@@ -66,30 +78,43 @@ export const authOptions: NextAuthOptions = {
 
 				if (!user) return null;
 
-				delete user.accessToken
-				return user;
+				return {
+					id: `${user.id}`,
+					name: user.name,
+					email: user.email,
+					notificationsEnabled: user.notificationsEnabled,
+					theme: user.theme
+				}
 			}
         })
 	],
+	debug: false,
 	session: {
 		strategy: 'jwt',
 	},
 	callbacks: {
 		async jwt({ token, user, trigger, session, account }) {
-			delete user.password
 
 			if (trigger === "update") {
 				return { ...token, ...session.user}
 			}
-			else if (user) {
-				return { ...token, user }
+
+			if (user) {
+				const chunkedUser = {
+					id: `${user.id}`,
+					name: user.name,
+					email: user.email,
+					notificationsEnabled: user.notificationsEnabled != null ? user.notificationsEnabled : true,
+					theme: user.theme != null ? user.theme : 'light'
+				}
+				return { ...token, ...chunkedUser }
 			}
 
 			return token;
 		},
-		async session({ session, token }) {
-			if (token) {
-				session.user.id = token.id;
+		async session({ session, token, user }) {
+			if (token != null) {
+				session.user = token as any
 			}
 
 			return session

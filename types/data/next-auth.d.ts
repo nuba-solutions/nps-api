@@ -6,7 +6,8 @@ declare module 'next-auth' {
    */
   interface Session {
     user: User
-    error: string;
+    expires?: Date
+    error: string
   }
   /**
    * The shape of the user object returned in the OAuth providers' `profile` callback,
@@ -32,7 +33,7 @@ declare module 'next-auth' {
   interface Account {
     provider: string;
     type: string;
-    id: string;
+    id?: string;
     accessToken: string;
     accessTokenExpires?: any;
     refreshToken: string;
@@ -49,14 +50,9 @@ declare module 'next-auth' {
   }
   /** The OAuth profile returned from your provider */
   interface Profile {
+    id: string;
     sub: string;
-    email_verified: boolean;
     name: string;
-    telephone: string;
-    preferred_username: string;
-    org_name: string;
-    given_name: string;
-    family_name: string;
     email: string;
   }
 }
