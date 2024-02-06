@@ -5,7 +5,7 @@ type TCharge = {
     totalAmount: number
     createdAt: Date
     updatedAt: Date
-    userId: User.id
+    userId: TUser.id
 }
 
 type TUser = {
@@ -15,15 +15,16 @@ type TUser = {
     password: string
     theme?: string | null
     notificationsEnabled: boolean
-    role: UserRole
+    role: Role
     createdAt: Date
-    charges?: Charge[]
+    charges?: TCharge[]
     notifications?: TNotification[]
+    stripeId: string
 }
 
 type TUserPreferences = {
     id: number
-    userId: User.id,
+    userId: TUser.id,
     theme?: string | null
     notificationsEnabled: boolean
 }
@@ -39,6 +40,6 @@ type TNotification = {
     title: string
     description: string
     createdAt: Date
-    userId: User.id
+    userId: TUser.id
     createdAt?: Date
 }

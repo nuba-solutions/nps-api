@@ -20,12 +20,19 @@ export async function POST(request: NextRequest) {
 
     try {
         const { email, password, client_provider }: TSignInSchema = result.data
-        // TODO: Check for user within the client provider's DB
+
         const user = await prisma.user.findFirst({
-            where: { email: email }
+            where: { email: email },
+            include: {
+                clientProviders: true
+            }
         })
 
-        if (!user || !user.password || !await comparePassword(password, user.password)) return NextResponse.json({ success: false, statusMessage: 'Unauthorized user' }, { status: 401 })
+        const userExistsInClientProvider = user?.clientProviders.some((cp) => JSON.stringify(cp.id) === client_provider)
+
+        if (!user || !user.password || !await comparePassword(password, user.password) || !userExistsInClientProvider) {
+            return NextResponse.json({ success: false, statusMessage: 'Unauthorized user' }, { status: 401 })
+        }
 
         const accessToken = signJwtAccessToken(user)
 

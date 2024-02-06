@@ -63,6 +63,7 @@ model User {
   clientProviders      ClientProvider[]
   notifications        Notification[]
   sessions             Session[]
+  stripeId             String
 }
 
 model VerificationToken {
@@ -84,12 +85,10 @@ model Charge {
   user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-
 model ClientProvider {
   id     Int    @id @unique @default(autoincrement())
   name   String
-  userId String?
-  User   User?  @relation(fields: [userId], references: [id])
+  users  User[]
 }
 
 model Notification {
