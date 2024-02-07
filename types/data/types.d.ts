@@ -3,9 +3,30 @@ type TCharge = {
     title: string
     description: string
     totalAmount: number
+    status?: ChargeStatus | string
     createdAt: Date
     updatedAt: Date
+    dueDate: Date
+    user?: TUser
     userId: TUser.id
+    chargeItems?: TChargeItem[]
+    clientProvider?: TClientProvider
+    clientProviderId: TClientProvider.id
+}
+
+type TChargeItem = {
+    id: number
+    description: string
+    amount: number
+    createdAt: Date
+    chargeId: number
+}
+
+type TClientProvider = {
+    id: number
+    name: string
+    users: TUser[]
+    charge: TCharge[]
 }
 
 type TUser = {
@@ -15,7 +36,7 @@ type TUser = {
     password: string
     theme?: string | null
     notificationsEnabled: boolean
-    role: Role
+    role?: Role | any
     createdAt: Date
     charges?: TCharge[]
     notifications?: TNotification[]
@@ -29,12 +50,6 @@ type TUserPreferences = {
     notificationsEnabled: boolean
 }
 
-enum TRole {
-    MASTER,
-    ADMIN,
-    USER
-}
-
 type TNotification = {
     id: string | number
     title: string
@@ -42,4 +57,17 @@ type TNotification = {
     createdAt: Date
     userId: TUser.id
     createdAt?: Date
+}
+
+enum Role {
+    MASTER,
+    ADMIN,
+    USER
+}
+
+enum ChargeStatus {
+    open,
+    paid,
+    pending,
+    deleted
 }

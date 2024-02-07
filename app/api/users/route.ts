@@ -52,11 +52,13 @@ export async function POST(request: Request) {
 	if (!name || !email || !password || !theme || !notificationsEnabled) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
 
 	try {
+		// TODO: Add check for existing emails
 		const stripeCustomer = await createStripeCustomer({
 			email,
 			name
 		})
 
+		// TODO: Add check for existing emails
 		let encryptedPass = await encryptPassword(password)
 		const createdUser: TUser = await prisma.user.create({
 			data: {
