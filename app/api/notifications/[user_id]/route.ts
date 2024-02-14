@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
-import { verifyJwt } from '@/lib/jwt'
+import { getToken } from 'next-auth/jwt'
 
 type TRequestProps = {
     params: {
@@ -8,16 +8,15 @@ type TRequestProps = {
     }
 }
 
-export async function GET(request: Request, { params : { user_id }}: TRequestProps) {
+export async function GET(request: NextRequest, { params : { user_id }}: TRequestProps) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	try {
-        const userId = parseInt(user_id)
-
         const response = await prisma.user.findUnique({
             where: {
-                id: userId
+                id: user_id
             },
             include: {
                 notifications: true

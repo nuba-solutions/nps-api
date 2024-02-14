@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
 import { encryptPassword } from '@/lib/encryption'
-import { verifyJwt } from '@/lib/jwt'
 import { createStripeCustomer, updateStripeCustomer } from '@/lib/stripe_helpers'
 import { User } from '@prisma/client'
+import { getToken } from 'next-auth/jwt'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	try {
         const response = await prisma.user.findMany({
@@ -25,9 +26,10 @@ export async function GET(request: Request) {
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { id }: Partial<User> = await request.json()
 	if (!id) return NextResponse.json({ error: 'User ID is required!' }, { status: 400 })
@@ -45,9 +47,10 @@ export async function DELETE(request: Request) {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { name, email, password, role, theme, notificationsEnabled }: Partial<User> = await request.json()
 	if (!name || !email || !password || !theme || notificationsEnabled === null) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
@@ -83,9 +86,10 @@ export async function POST(request: Request) {
     }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { id, name, email, notificationsEnabled, theme, stripeId }: User = await request.json()
 	if (!id || !name || !email || !stripeId || notificationsEnabled === null || !theme) return NextResponse.json({ error : "Missing required data"}, { status: 400 })

@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
-import { verifyJwt } from '@/lib/jwt'
+import { getToken } from 'next-auth/jwt'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	try {
         const response = await prisma.notification.findMany()
@@ -19,9 +20,10 @@ export async function GET(request: Request) {
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { id }: Partial<TNotification> = await request.json()
 	if (!id) return NextResponse.json({ error: 'Notification ID is required!' }, { status: 400 })
@@ -39,9 +41,10 @@ export async function DELETE(request: Request) {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error: 'Unauthorized request' }, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { title, description, userId }: Partial<TNotification> = await request.json()
 	if (!title || !description || !userId) return NextResponse.json({ error : "Missing required data"}, { status: 400 })

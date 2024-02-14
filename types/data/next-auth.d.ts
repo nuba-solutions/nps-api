@@ -1,13 +1,14 @@
 import 'next-auth'
+import { DefaultSession } from 'next-auth'
 
 declare module 'next-auth' {
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `Provider` React Context
    */
-  interface Session {
-    user: User
-    expires?: Date
-    error: string
+  interface Session extends DefaultSession {
+    user: Partial<User>
+    // expires?: Date
+    // error: string
   }
   /**
    * The shape of the user object returned in the OAuth providers' `profile` callback,
@@ -25,6 +26,8 @@ declare module 'next-auth' {
     notificationsEnabled: boolean
     emailVerified: Date
     image: string
+    exp?: number
+    sub?: string
   }
   /**
    * Usually contains information about the provider being used
@@ -61,15 +64,18 @@ declare module 'next-auth/jwt' {
   /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
   interface JWT {
     id: string;
+    sub: string;
     name: string;
     email: string;
-    picture?: string;
-    sub: string;
+    notificationsEnabled: boolean;
+    theme: string;
+    iat: number;
+    exp: number;
+    jti: string;
     accessToken: string;
     refreshToken: string;
     accessTokenExpired: number;
     refreshTokenExpired: number;
-    user: User;
     error: string;
   }
 }

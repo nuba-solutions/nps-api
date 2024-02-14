@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
-import { verifyJwt } from '@/lib/jwt'
+import { getToken } from 'next-auth/jwt'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	try {
         const response = await prisma.charge.findMany({
@@ -20,9 +21,10 @@ export async function GET(request: Request) {
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { id }: Partial<TCharge> = await request.json()
 	if (!id) return NextResponse.json({ error : "Charge ID is required!"}, { status: 400 })
@@ -40,9 +42,10 @@ export async function DELETE(request: Request) {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { title, description, totalAmount, userId }: Partial<TCharge> = await request.json()
 	if (!title || !description || !totalAmount || !userId) return NextResponse.json({ error : "Missing required data"}, { status: 400 })
@@ -63,9 +66,10 @@ export async function POST(request: Request) {
     }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
 	const { id, title, description, totalAmount, userId }: TCharge = await request.json()
 	if (!id || !title || !description || !totalAmount || !userId) return NextResponse.json({ error : "Missing required data"}, { status: 400 })

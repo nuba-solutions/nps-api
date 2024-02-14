@@ -1,10 +1,12 @@
-import { NextAuthOptions } from "next-auth"
+import { getServerSession, NextAuthOptions } from "next-auth"
 import EmailProvider from 'next-auth/providers/email'
 import KeycloakProvider from 'next-auth/providers/keycloak'
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "../lib/prisma_client"
 import { Adapter, AdapterAccount } from "next-auth/adapters"
+import { getToken } from "next-auth/jwt"
+import { NextRequest } from "next/server"
 
 const prismaAdapter = PrismaAdapter(prisma);
 
@@ -82,9 +84,10 @@ export const authOptions: NextAuthOptions = {
 					id: `${user.id}`,
 					name: user.name,
 					email: user.email,
-					stripeId: user.stripeId,
-					notificationsEnabled: user.notificationsEnabled,
-					theme: user.theme
+					stripeId: user.stripeId || null,
+					notificationsEnabled: user.notificationsEnabled != null ? user.notificationsEnabled : true,
+					theme: user.theme || 'light',
+					accessToken: user.accessToken || null
 				}
 			}
         })
@@ -92,9 +95,16 @@ export const authOptions: NextAuthOptions = {
 	debug: false,
 	session: {
 		strategy: 'jwt',
+		maxAge: 10 * 24 * 60 * 60,
+	},
+	jwt: {
+		maxAge: 10 * 24 * 60 * 60,
 	},
 	callbacks: {
 		async jwt({ token, user, trigger, session, account }) {
+			if (account) {
+				token.accessToken = account.access_token;
+			}
 
 			if (trigger === "update") {
 				return { ...token, ...session.user}
@@ -113,7 +123,7 @@ export const authOptions: NextAuthOptions = {
 
 			return token;
 		},
-		async session({ session, token, user }) {
+		async session({ session, token }) {
 			if (token != null) {
 				session.user = token as any
 			}
@@ -121,4 +131,18 @@ export const authOptions: NextAuthOptions = {
 			return session
 		}
 	}
+}
+
+export async function auth(req: NextRequest) {
+	const accessToken = req.headers.get("Authorization")
+ 	const session = await getServerSession(authOptions)
+    const token = await getToken({req})
+
+	if (!accessToken || !token || !session) return null
+	if (token && new Date(token.exp * 1000) <= new Date()) return null
+	if (session && new Date(session.user?.exp! * 1000) <= new Date()) return null
+
+	if (token) return token
+	else if (session) return session.user
+	else return null
 }

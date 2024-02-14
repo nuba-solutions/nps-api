@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
-import { verifyJwt } from '@/lib/jwt'
+import { getToken } from 'next-auth/jwt'
 
-export async function GET(request: Request, { params : { id }}: RequestProps) {
-    const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+export async function GET(request: NextRequest, { params : { id }}: RequestProps) {
+	const accessToken = request.headers.get("Authorization")
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
     try {
         const chargeId = parseInt(id)

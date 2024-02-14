@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
-import { verifyJwt } from '@/lib/jwt'
 import Stripe from 'stripe'
+import { getToken } from 'next-auth/jwt'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: '2023-10-16'
@@ -9,7 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export async function GET(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
     const stripeId = request.nextUrl.searchParams.get('stId')
     if (!stripeId) return NextResponse.json({ error : "Missing Stripe ID"}, { status: 400 })
@@ -26,9 +27,10 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: Request) {
-    const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+export async function POST(request: NextRequest) {
+	const accessToken = request.headers.get("Authorization")
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
     const { customerEmail, invoiceItemsData, invoiceDescription, invoiceDueDate } = await request.json()
     if (!customerEmail || !invoiceItemsData || !invoiceDescription || !invoiceDueDate) return NextResponse.json({ error : "Missing required data"}, { status: 400 })

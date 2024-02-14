@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyJwt } from '@/lib/jwt'
 import Stripe from 'stripe'
+import { getToken } from 'next-auth/jwt'
 
 type TRequestStatusProps = {
     params: {
@@ -10,7 +10,8 @@ type TRequestStatusProps = {
 
 export async function GET(request: NextRequest, { params : { invoice_status }}: TRequestStatusProps) {
 	const accessToken = request.headers.get("Authorization")
-	if (!accessToken || !verifyJwt(accessToken)) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
+    const token = await getToken({req: request})
+	if (!accessToken || !token) return NextResponse.json({ error : "Unauthorized request"}, { status: 401 })
 
     const stripeId = request.nextUrl.searchParams.get('stId')
     if (!stripeId || !invoice_status) return NextResponse.json({ error : "Missing Required Data"}, { status: 400 })
