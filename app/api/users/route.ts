@@ -62,11 +62,13 @@ export async function POST(request: NextRequest) {
 	if (user) return NextResponse.json({ error: "User email already exists." }, { status: 400 })
 
 	try {
+		// TODO: Add check for existing emails
 		const stripeCustomer = await createStripeCustomer({
 			email,
 			name
 		})
 
+		// TODO: Add check for existing emails
 		let encryptedPass = await encryptPassword(password)
 		const createdUser: User = await prisma.user.create({
 			data: {

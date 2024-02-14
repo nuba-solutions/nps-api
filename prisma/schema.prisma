@@ -46,6 +46,31 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Charge {
+  id               Int             @id @unique @default(autoincrement())
+  title            String
+  description      String          @db.Text
+  totalAmount      Float
+  status           ChargeStatus    @default(open)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  dueDate          DateTime
+  user             User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String?
+  chargeItems      ChargeItem[]
+  clientProvider   ClientProvider? @relation(fields: [clientProviderId], references: [id])
+  clientProviderId Int?
+}
+
+model ChargeItem {
+  id          Int      @id @unique @default(autoincrement())
+  description String   @db.Text
+  amount      Float
+  createdAt   DateTime @default(now())
+  Charge      Charge?  @relation(fields: [chargeId], references: [id], onDelete: Cascade)
+  chargeId    Int?
+}
+
 model User {
   id                   String  @id @default(cuid())
   name                 String
@@ -74,21 +99,11 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Charge {
-  id          Int      @id @unique @default(autoincrement())
-  title       String
-  description String
-  totalAmount Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model ClientProvider {
-  id     Int    @id @unique @default(autoincrement())
+  id     Int      @id @unique @default(autoincrement())
   name   String
   users  User[]
+  Charge Charge[]
 }
 
 model Notification {
@@ -104,4 +119,11 @@ enum Role {
   MASTER
   ADMIN
   USER
+}
+
+enum ChargeStatus {
+    open
+    paid
+    pending
+    deleted
 }
