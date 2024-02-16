@@ -87,7 +87,8 @@ export const authOptions: NextAuthOptions = {
 					stripeId: user.stripeId || null,
 					notificationsEnabled: user.notificationsEnabled != null ? user.notificationsEnabled : true,
 					theme: user.theme || 'light',
-					accessToken: user.accessToken || null
+					accessToken: user.accessToken || null,
+					client_provider: user.client_provider
 				}
 			}
         })
@@ -116,7 +117,8 @@ export const authOptions: NextAuthOptions = {
 					name: user.name,
 					email: user.email,
 					notificationsEnabled: user.notificationsEnabled != null ? user.notificationsEnabled : true,
-					theme: user.theme != null ? user.theme : 'light'
+					theme: user.theme != null ? user.theme : 'light',
+					client_provider: user.client_provider
 				}
 				return { ...token, ...chunkedUser }
 			}
