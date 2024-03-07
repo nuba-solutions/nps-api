@@ -86,6 +86,7 @@ model User {
   accounts             Account[]
   charges              Charge[]
   clientProviders      ClientProvider[]
+  clientCredentials    ClientCredential[]
   notifications        Notification[]
   sessions             Session[]
   stripeId             String
@@ -104,6 +105,7 @@ model ClientProvider {
   name   String
   users  User[]
   Charge Charge[]
+  clientCredentials ClientCredential[]
 }
 
 model Notification {
@@ -113,6 +115,16 @@ model Notification {
   createdAt   DateTime @default(now())
   userId      String?
   User        User?    @relation(fields: [userId], references: [id])
+}
+
+model ClientCredential {
+  id                   String  @id @default(cuid())
+  clientId             String  @unique
+  clientSecret             String
+  userId              String
+  user                User    @relation(fields: [userId], references: [id])
+  clientProviderId Int
+  clientProvider        ClientProvider    @relation(fields: [clientProviderId], references: [id])
 }
 
 enum Role {

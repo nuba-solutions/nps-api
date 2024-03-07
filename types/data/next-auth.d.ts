@@ -71,11 +71,11 @@ declare module 'next-auth/jwt' {
     theme: string;
     iat: number;
     exp: number;
-    jti: string;
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExpired: number;
-    refreshTokenExpired: number;
-    error: string;
+    jti?: string;
+    accessToken?: string;
+    refreshToken?: string;
+    accessTokenExpired?: number;
+    refreshTokenExpired?: number;
+    error?: string;
   }
 }

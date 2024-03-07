@@ -88,7 +88,8 @@ export const authOptions: NextAuthOptions = {
 					notificationsEnabled: user.notificationsEnabled != null ? user.notificationsEnabled : true,
 					theme: user.theme || 'light',
 					accessToken: user.accessToken || null,
-					client_provider: user.client_provider
+					client_provider: user.client_provider,
+					role: user.role
 				}
 			}
         })
@@ -118,7 +119,8 @@ export const authOptions: NextAuthOptions = {
 					email: user.email,
 					notificationsEnabled: user.notificationsEnabled != null ? user.notificationsEnabled : true,
 					theme: user.theme != null ? user.theme : 'light',
-					client_provider: user.client_provider
+					client_provider: user.client_provider,
+					role: user.role
 				}
 				return { ...token, ...chunkedUser }
 			}
@@ -147,4 +149,8 @@ export async function auth(req: NextRequest) {
 	if (token) return token
 	else if (session) return session.user
 	else return null
+}
+
+export function getClientSecretWithSalt(clientId: string, userId: string, clientProviderId: number) {
+	return clientId + userId + clientProviderId + "client_credentials";
 }
