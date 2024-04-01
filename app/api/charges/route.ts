@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma_client'
 import { getToken } from 'next-auth/jwt'
+import { Queue } from "bullmq";
+import config from "@/webhooks/config";
+
+const taskQueue = new Queue("tasks", { connection: config.connection });
 
 export async function GET(request: NextRequest) {
 	const accessToken = request.headers.get("Authorization")
@@ -128,6 +132,15 @@ export async function POST(request: NextRequest) {
 			await createChargeItem(item)
 		})
 
+		await taskQueue.add('charges', createdCharge)
+			// .then(
+			// (job) => {
+			// 	res.status(201).end(job.id);
+			// },
+			// (err) => {
+			// 	res.status(500).end(err);
+			// }
+			// );
 		return NextResponse.json(createdCharge)
 	} catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 })

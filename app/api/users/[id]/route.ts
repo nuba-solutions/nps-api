@@ -28,3 +28,7 @@ export async function GET(request: NextRequest, { params : { id }}: RequestProps
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }
+
+export async function POST(request: NextRequest, { params : { id }}: RequestProps) {
+  console.log("Received notification with", request.body, ' and id:', id);
+}
